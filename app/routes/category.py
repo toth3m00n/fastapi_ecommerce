@@ -1,8 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from slugify import slugify
-from sqlalchemy import insert, select
+from sqlalchemy import insert, select, update
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -36,10 +36,37 @@ async def create_category(db: Annotated[Session, Depends(get_db)], category: Cre
 
 
 @router.put('/update_category')
-async def update_category():
-    pass
+async def update_category(db: Annotated[Session, Depends(get_db)], category_id: int, category_update: CreateCategory):
+    category = db.scalar(select(Category).where(Category.id == category_id))
+
+    if category is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='There is no category found'
+        )
+
+    db.execute(update(Category).where(Category.id == category_id).values(name=category_update.name,
+                                                                         parent_id=category_update.parent_id))
+    db.commit()
+    return {
+        'status_code': status.HTTP_200_OK,
+        'transaction': 'Category update is successful'
+    }
 
 
 @router.delete('/delete_category')
-async def delete_category():
-    pass
+async def delete_category(db: Annotated[Session, Depends(get_db)], category_id: int):
+    category = db.scalar(select(Category).where(Category.id == category_id))
+
+    if category is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='There is no category found'
+        )
+    query = update(Category).where(Category.id == category_id).values(is_active=False)
+    db.execute(query)
+    db.commit()
+    return {
+        'status_code': status.HTTP_200_OK,
+        'transaction': 'Category delete is successful'
+    }
