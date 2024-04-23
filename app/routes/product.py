@@ -15,7 +15,7 @@ router = APIRouter(prefix='/products', tags=['products'])
 
 @router.get('/')
 async def all_products(db: Annotated[Session, Depends(get_db)]):
-    products = db.scalars(select(Product).where(Product.is_active == True and Product.stock == 0)).all()
+    products = db.scalars(select(Product).where(Product.is_active == True, Product.stock > 0)).all()
     if products is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="There are no products")
     return products
@@ -58,7 +58,7 @@ async def product_by_category(category_slug: str, db: Annotated[Session, Depends
 
 @router.get('/detail/{product_slug}')
 async def product_detail(product_slug: str, db: Annotated[Session, Depends(get_db)]):
-    current_product = db.scalar(select(Product).where(Product.slug == product_slug))
+    current_product = db.scalar(select(Product).where(Product.slug == product_slug, Product.stock > 0))
     if current_product is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
