@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from slugify import slugify
-from sqlalchemy import select, insert
+from sqlalchemy import select, insert, update
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -57,15 +57,55 @@ async def product_by_category(category_slug: str, db: Annotated[Session, Depends
 
 
 @router.get('/detail/{product_slug}')
-async def product_detail(product_slug: str):
-    pass
+async def product_detail(product_slug: str, db: Annotated[Session, Depends(get_db)]):
+    current_product = db.scalar(select(Product).where(Product.slug == product_slug))
+    if current_product is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="There is no such product with slug {}".format(product_slug)
+        )
+    return current_product
 
 
 @router.put('/detail/{product_slug}')
-async def update_product(product_slug: str):
-    pass
+async def update_product(product_slug: str, db: Annotated[Session, Depends(get_db)], product_update: CreateProduct):
+    current_product = db.scalar(select(Product).where(Product.slug == product_slug))
+    if current_product is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="There is no such product with slug {}".format(product_slug)
+        )
+
+    query = update(Product).where(Product.slug == product_slug).values(
+        name=product_update.name,
+        description=product_update.description,
+        price=product_update.price,
+        image_url=product_update.image_url,
+        stock=product_update.stock,
+        category_id=product_update.category
+    )
+
+    db.execute(query)
+    db.commit()
+    return {
+        'status_code': status.HTTP_200_OK,
+        'transaction': 'Product update is successful'
+    }
 
 
 @router.delete('/delete')
-async def delete_product(product_id: int):
-    pass
+async def delete_product(product_id: int, db: Annotated[Session, Depends(get_db)]):
+    product = db.scalar(select(Product).where(Product.id == product_id))
+
+    if product is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='There is no product found'
+        )
+    query = update(Product).where(Product.id == product_id).values(is_active=False)
+    db.execute(query)
+    db.commit()
+    return {
+        'status_code': status.HTTP_200_OK,
+        'transaction': 'Category delete is successful'
+    }
