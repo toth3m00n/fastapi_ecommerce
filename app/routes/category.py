@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from slugify import slugify
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -14,8 +14,10 @@ router = APIRouter(prefix='/category', tags=['category'])
 
 
 @router.get('/all_categories')
-async def get_all_categories():
-    pass
+async def get_all_categories(db: Annotated[Session, Depends(get_db)]):
+    categories = db.scalars(select(Category).where(Category.is_active == True)).all()
+    print(db.scalars(select(Category)))
+    return categories
 
 
 @router.post('/create_category')
