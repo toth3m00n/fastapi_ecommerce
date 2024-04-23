@@ -39,3 +39,11 @@ from app.models.products import Product
 + ```alembic history``` --verbose история миграций
 + ```alembic downgrade``` base даунгрейд в самое начало
 + ```alembic upgrade head``` апгрейд до самого конца
+
+--- 
+
+### Асинхронный alembic
+
+1. Среда ```alembic init -t async app/migrations```
+2. создание миграций ```alembic revision --autogenerate -m "Initial migration"```
+3. применение миграций ```alembic upgrade head```
