@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from slugify import slugify
 from sqlalchemy import insert, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from starlette import status
 
@@ -14,21 +15,20 @@ router = APIRouter(prefix='/category', tags=['category'])
 
 
 @router.get('/all_categories')
-async def get_all_categories(db: Annotated[Session, Depends(get_db)]):
-    categories = db.scalars(select(Category).where(Category.is_active == True)).all()
-    print(db.scalars(select(Category)))
-    return categories
+async def get_all_categories(db: Annotated[AsyncSession, Depends(get_db)]):
+    categories = await db.scalars(select(Category).where(Category.is_active == True))
+    return categories.all()
 
 
 @router.post('/create_category')
-async def create_category(db: Annotated[Session, Depends(get_db)], category: CreateCategory):
+async def create_category(db: Annotated[AsyncSession, Depends(get_db)], category: CreateCategory):
     query = insert(Category).values(
         name=category.name,
         parent_id=category.parent_id,
         slug=slugify(category.name)
     )
-    db.execute(query)
-    db.commit()
+    await db.execute(query)
+    await db.commit()
     return {
         'status_code': status.HTTP_201_CREATED,
         'transaction': 'Successful'
@@ -36,8 +36,8 @@ async def create_category(db: Annotated[Session, Depends(get_db)], category: Cre
 
 
 @router.put('/update_category')
-async def update_category(db: Annotated[Session, Depends(get_db)], category_id: int, category_update: CreateCategory):
-    category = db.scalar(select(Category).where(Category.id == category_id))
+async def update_category(db: Annotated[AsyncSession, Depends(get_db)], category_id: int, category_update: CreateCategory):
+    category = await db.scalar(select(Category).where(Category.id == category_id))
 
     if category is None:
         raise HTTPException(
@@ -45,9 +45,8 @@ async def update_category(db: Annotated[Session, Depends(get_db)], category_id: 
             detail='There is no category found'
         )
 
-    db.execute(update(Category).where(Category.id == category_id).values(name=category_update.name,
-                                                                         parent_id=category_update.parent_id))
-    db.commit()
+    await db.execute(update(Category).where(Category.id == category_id).values(name=category_update.name, parent_id=category_update.parent_id))
+    await db.commit()
     return {
         'status_code': status.HTTP_200_OK,
         'transaction': 'Category update is successful'
@@ -55,8 +54,8 @@ async def update_category(db: Annotated[Session, Depends(get_db)], category_id: 
 
 
 @router.delete('/delete_category')
-async def delete_category(db: Annotated[Session, Depends(get_db)], category_id: int):
-    category = db.scalar(select(Category).where(Category.id == category_id))
+async def delete_category(db: Annotated[AsyncSession, Depends(get_db)], category_id: int):
+    category = await db.scalar(select(Category).where(Category.id == category_id))
 
     if category is None:
         raise HTTPException(
@@ -64,8 +63,8 @@ async def delete_category(db: Annotated[Session, Depends(get_db)], category_id: 
             detail='There is no category found'
         )
     query = update(Category).where(Category.id == category_id).values(is_active=False)
-    db.execute(query)
-    db.commit()
+    await db.execute(query)
+    await db.commit()
     return {
         'status_code': status.HTTP_200_OK,
         'transaction': 'Category delete is successful'
