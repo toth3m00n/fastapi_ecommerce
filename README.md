@@ -17,6 +17,13 @@ ecommerce shop
 
 ### Notes:
 
+## Start
+
+```
+uvicorn app.main:app --reload [--port 8000] 
+```
+[you can change or skip]
+
 + Start database in docker + adminer
 ```angular2html
 docker-compose up 
