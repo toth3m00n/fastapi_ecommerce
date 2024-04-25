@@ -34,7 +34,7 @@ http://localhost:8080/
 ```
 ---
 
-#### Наполнение БД
+#### Fill db
 
 ```angular2html
 INSERT INTO public.category (id, name, slug, is_active, parent_id) VALUES (1, 'Apple', 'apple', true, null);
