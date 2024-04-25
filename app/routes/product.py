@@ -9,6 +9,7 @@ from starlette import status
 
 from app.backend.db_depends import get_db
 from app.models import Product, Category
+from app.routes.auth import get_current_user
 from app.schemas import CreateProduct
 
 router = APIRouter(prefix='/products', tags=['products'])
@@ -23,21 +24,25 @@ async def all_products(db: Annotated[AsyncSession, Depends(get_db)]):
 
 
 @router.post('/create')
-async def create_product(db: Annotated[AsyncSession, Depends(get_db)], product: CreateProduct):
-    query = insert(Product).values(
-        name=product.name,
-        slug=slugify(product.name),
-        description=product.description,
-        price=product.price,
-        image_url=product.image_url,
-        stock=product.stock,
-        category_id=product.category
-    )
+async def create_product(db: Annotated[AsyncSession, Depends(get_db)],
+                         product: CreateProduct,
+                         get_user: Annotated[dict, Depends(get_current_user)]):
+    if get_user.get('is_admin') or get_user.get('is_supplier'):
 
-    await db.execute(query)
-    await db.commit()
+        query = insert(Product).values(
+            name=product.name,
+            slug=slugify(product.name),
+            description=product.description,
+            price=product.price,
+            image_url=product.image_url,
+            stock=product.stock,
+            category_id=product.category
+        )
 
-    return {'status_code': status.HTTP_201_CREATED, 'transaction': 'Successful'}
+        await db.execute(query)
+        await db.commit()
+
+        return {'status_code': status.HTTP_201_CREATED, 'transaction': 'Successful'}
 
 
 @router.get('/{category_slug}')

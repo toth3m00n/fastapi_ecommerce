@@ -56,7 +56,6 @@ async def create_user(db: Annotated[AsyncSession, Depends(get_db)], user: Create
 #
 
 
-
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
