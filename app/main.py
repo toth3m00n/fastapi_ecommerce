@@ -1,7 +1,10 @@
 from fastapi import FastAPI
+
+from app.middlewares import TimingMiddleware
 from app.routes import category, product, auth, permission
 
 app = FastAPI(version='0.0.1')
+app.add_middleware(TimingMiddleware)
 
 
 @app.get("/")
