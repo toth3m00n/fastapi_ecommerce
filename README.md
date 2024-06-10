@@ -1,5 +1,6 @@
 ## FastApi Project
 
+
 ### Stack:
 
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
@@ -16,6 +17,7 @@
 ecommerce shop
 
 ### Notes:
+--
 
 ## Start
 
