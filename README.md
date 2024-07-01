@@ -12,6 +12,7 @@
 ![Alembic](https://img.shields.io/badge/Alembic-%23075e.svg?&style=for-the-badge&logo=Alembic&logoColor=white")
 ![Pydantic](https://img.shields.io/badge/Pydantic-%23e75e.svg?&style=for-the-badge&logo=Alembic&logoColor=white")
 
+
 ### About:
 
 ecommerce shop
