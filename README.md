@@ -1,6 +1,7 @@
 ## FastApi Project
 
 
+
 ### Stack:
 
 ![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)
@@ -11,6 +12,7 @@
 ![SQLAlchemy](https://img.shields.io/badge/SqlAlchemy-%2307405e.svg?&style=for-the-badge&logo=SqlAlchemy&logoColor=white")
 ![Alembic](https://img.shields.io/badge/Alembic-%23075e.svg?&style=for-the-badge&logo=Alembic&logoColor=white")
 ![Pydantic](https://img.shields.io/badge/Pydantic-%23e75e.svg?&style=for-the-badge&logo=Alembic&logoColor=white")
+
 
 ### About:
 
