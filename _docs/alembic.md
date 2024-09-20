@@ -49,3 +49,4 @@ from app.models.products import Product
 3. применение миграций ```alembic upgrade head```
 
 ---
+---
